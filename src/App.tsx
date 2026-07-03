@@ -1,14 +1,23 @@
 import { useEffect, useState } from "react";
-import { pingAi, summarizeText } from "./api/aiApi";
+import { extractText, pingAi, summarizeText } from "./api/aiApi";
 import { fetchHealth } from "./api/healthApi";
 import { AnswerPreviewCard } from "./components/AnswerPreviewCard";
+import { CapabilityCard } from "./components/CapabilityCard";
 import { CitationPreviewList } from "./components/CitationPreviewList";
+import { ExtractPanel } from "./components/ExtractPanel";
+import { ExtractResultCard } from "./components/ExtractResultCard";
 import { HealthBadge } from "./components/HealthBadge";
 import { PingPanel } from "./components/PingPanel";
 import { RagQuestionPanel } from "./components/RagQuestionPanel";
 import { StatusNotice } from "./components/StatusNotice";
 import { SummaryPanel } from "./components/SummaryPanel";
-import { type AiPingResponse, type CitationPreview, type HealthResponse, type SummaryResponse } from "./types/api";
+import {
+  type AiPingResponse,
+  type CitationPreview,
+  type ExtractResponse,
+  type HealthResponse,
+  type SummaryResponse
+} from "./types/api";
 
 const previewCitations: CitationPreview[] = [
   {
@@ -19,7 +28,7 @@ const previewCitations: CitationPreview[] = [
   {
     fileName: "troubleshooting.md",
     chunkIndex: 5,
-    snippet: "这个区域已经提前按 /rag/ask 的展示需求留好了结构。"
+    snippet: "这个区域已经提前把 /rag/ask 的答案与引用展示结构预留好了。"
   }
 ];
 
@@ -35,6 +44,10 @@ function App() {
   const [summaryData, setSummaryData] = useState<SummaryResponse | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryError, setSummaryError] = useState<string | null>(null);
+
+  const [extractData, setExtractData] = useState<ExtractResponse | null>(null);
+  const [extractLoading, setExtractLoading] = useState(false);
+  const [extractError, setExtractError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -73,18 +86,12 @@ function App() {
       const result = await pingAi(message);
       setPingData(result);
     } catch (error) {
-      setPingError(error instanceof Error ? error.message : "AI 调试请求失败");
+      setPingError(error instanceof Error ? error.message : "AI 连通性请求失败");
     } finally {
       setPingLoading(false);
     }
   }
 
-  /**
-   * 处理文本总结请求。
-   *
-   * 这里单独维护 loading 和 error，
-   * 这样页面可以同时支持 ping 调试和 summary 调试，而不会互相覆盖状态。
-   */
   async function handleSummary(text: string) {
     setSummaryLoading(true);
     setSummaryError(null);
@@ -99,33 +106,45 @@ function App() {
     }
   }
 
+  async function handleExtract(text: string) {
+    setExtractLoading(true);
+    setExtractError(null);
+
+    try {
+      const result = await extractText(text);
+      setExtractData(result);
+    } catch (error) {
+      setExtractError(error instanceof Error ? error.message : "结构化抽取请求失败");
+    } finally {
+      setExtractLoading(false);
+    }
+  }
+
   return (
     <div className="app-shell">
       <header className="hero">
         <div>
           <p className="eyebrow">Knowledge RAG Demo</p>
-          <h1>最小前端演示页</h1>
+          <h1>AI 能力工作台</h1>
           <p className="hero-copy">
-            当前页面已经真实接入 <code>/health</code>、<code>/ai/ping</code> 和
-            <code>/ai/summary</code>，同时也把后续 RAG 问答区和引用区的布局提前留好了。
+            这个工作台用于承接当前学习阶段的 AI 能力验证，包括模型连通性、文本总结、结构化抽取和后续
+            RAG 问答能力。页面组织方式尽量贴近企业内部 AI 控制台，便于继续扩展 Day 5 / Day 6。
           </p>
         </div>
         <HealthBadge data={health} loading={healthLoading} error={healthError} />
       </header>
 
       <main className="page-grid">
-        <section className="panel">
-          <div className="panel-header">
-            <div>
-              <p className="panel-kicker">Step 1</p>
-              <h2>AI Ping 调试区</h2>
-            </div>
-          </div>
+        <CapabilityCard
+          kicker="Connectivity"
+          title="AI 连通性验证"
+          description="用于快速验证前后端是否连通、模型供应商配置是否可用，是后续所有 AI 能力卡的基础检查项。"
+        >
           <PingPanel onSubmit={handlePing} loading={pingLoading} />
           <AnswerPreviewCard
-            title="AI Ping 返回结果"
-            emptyTitle="还没有返回结果"
-            emptyDescription="先发送一段消息，验证前后端连通性和当前模型供应商配置。"
+            title="AI 连通性返回结果"
+            emptyTitle="还没有连通性结果"
+            emptyDescription="先发送一段消息，验证当前模型接入链路是否工作正常。"
             answer={pingData?.output ?? null}
             meta={
               pingData
@@ -138,20 +157,18 @@ function App() {
             loading={pingLoading}
           />
           <StatusNotice tone="error" message={pingError} />
-        </section>
+        </CapabilityCard>
 
-        <section className="panel">
-          <div className="panel-header">
-            <div>
-              <p className="panel-kicker">Step 2</p>
-              <h2>文本总结调试区</h2>
-            </div>
-          </div>
+        <CapabilityCard
+          kicker="Summarization"
+          title="文本总结"
+          description="把较长文本压缩成便于快速阅读的总结结果，用于演示基础文本理解能力和接口边界行为。"
+        >
           <SummaryPanel onSubmit={handleSummary} loading={summaryLoading} />
           <AnswerPreviewCard
             title="文本总结结果"
             emptyTitle="还没有总结结果"
-            emptyDescription="发送一段文本到 /ai/summary，验证新的总结接口是否工作正常。"
+            emptyDescription="发送一段文本到 /ai/summary，这里会展示总结结果和基础元信息。"
             answer={summaryData?.summary ?? null}
             meta={
               summaryData
@@ -164,15 +181,27 @@ function App() {
             loading={summaryLoading}
           />
           <StatusNotice tone="error" message={summaryError} />
-        </section>
+        </CapabilityCard>
 
-        <section className="panel">
-          <div className="panel-header">
-            <div>
-              <p className="panel-kicker">Step 3</p>
-              <h2>RAG 区域预留</h2>
-            </div>
-          </div>
+        <CapabilityCard
+          kicker="Structured Extraction"
+          title="结构化抽取"
+          description="把业务文本治理成可消费的标题、分类、优先级和关键词，贴近企业后台里的文本预处理场景。"
+        >
+          <ExtractPanel onSubmit={handleExtract} loading={extractLoading} />
+          <ExtractResultCard data={extractData} loading={extractLoading} />
+          <StatusNotice tone="error" message={extractError} />
+          <StatusNotice
+            tone="info"
+            message="推荐用故障反馈、需求描述、投诉记录和咨询文本来观察结构化抽取效果。"
+          />
+        </CapabilityCard>
+
+        <CapabilityCard
+          kicker="RAG Roadmap"
+          title="RAG 能力预留"
+          description="当前先稳定工作台骨架和引用展示区域，等 /rag/ask 与检索能力接入后，这张卡可以直接承接真实问答链路。"
+        >
           <RagQuestionPanel />
           <AnswerPreviewCard
             title="RAG 答案预览"
@@ -186,11 +215,8 @@ function App() {
             loading={false}
           />
           <CitationPreviewList items={previewCitations} />
-          <StatusNotice
-            tone="info"
-            message="当前引用列表是静态预览，目的是先把页面结构稳定下来。"
-          />
-        </section>
+          <StatusNotice tone="info" message="当前引用列表是静态预览，目标是先把 RAG 卡片的布局稳定下来。" />
+        </CapabilityCard>
       </main>
     </div>
   );

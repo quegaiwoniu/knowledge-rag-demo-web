@@ -133,6 +133,16 @@ code {
   margin-bottom: 18px;
 }
 
+.capability-card__header {
+  align-items: flex-start;
+}
+
+.capability-card__description {
+  margin: 12px 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
 .stack {
   display: grid;
   gap: 16px;
@@ -244,6 +254,56 @@ textarea:disabled {
   margin-bottom: 6px;
   color: var(--muted);
   font-size: 0.85rem;
+}
+
+.extract-title-block,
+.keyword-block {
+  margin-top: 16px;
+}
+
+.extract-title {
+  margin: 8px 0 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.tag-chip,
+.priority-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.tag-chip {
+  background: #f4efe2;
+  border: 1px solid var(--line);
+}
+
+.priority-badge--low {
+  background: #eef6ff;
+  color: #245ea9;
+}
+
+.priority-badge--medium {
+  background: #fff4d9;
+  color: #8a5a00;
+}
+
+.priority-badge--high {
+  background: #ffe5e5;
+  color: #b42318;
 }
 
 .citation-list {
