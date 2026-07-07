@@ -346,6 +346,32 @@ textarea:disabled {
   color: var(--error);
 }
 
+.weather-result {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: #fffefa;
+}
+
+.weather-result__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.weather-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #eef6ff;
+  color: #245ea9;
+  font-weight: 700;
+}
+
 @media (max-width: 920px) {
   .hero,
   .page-grid {

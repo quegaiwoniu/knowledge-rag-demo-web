@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { extractText, pingAi, summarizeText } from "./api/aiApi";
+import { callWeatherTool, extractText, pingAi, summarizeText } from "./api/aiApi";
 import { fetchHealth } from "./api/healthApi";
 import { AnswerPreviewCard } from "./components/AnswerPreviewCard";
 import { CapabilityCard } from "./components/CapabilityCard";
@@ -11,12 +11,15 @@ import { PingPanel } from "./components/PingPanel";
 import { RagQuestionPanel } from "./components/RagQuestionPanel";
 import { StatusNotice } from "./components/StatusNotice";
 import { SummaryPanel } from "./components/SummaryPanel";
+import { WeatherToolPanel } from "./components/WeatherToolPanel";
+import { WeatherToolResultCard } from "./components/WeatherToolResultCard";
 import {
   type AiPingResponse,
   type CitationPreview,
   type ExtractResponse,
   type HealthResponse,
-  type SummaryResponse
+  type SummaryResponse,
+  type ToolCallResponse
 } from "./types/api";
 
 const previewCitations: CitationPreview[] = [
@@ -48,6 +51,10 @@ function App() {
   const [extractData, setExtractData] = useState<ExtractResponse | null>(null);
   const [extractLoading, setExtractLoading] = useState(false);
   const [extractError, setExtractError] = useState<string | null>(null);
+
+  const [toolCallData, setToolCallData] = useState<ToolCallResponse | null>(null);
+  const [toolCallLoading, setToolCallLoading] = useState(false);
+  const [toolCallError, setToolCallError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -120,6 +127,20 @@ function App() {
     }
   }
 
+  async function handleToolCall(question: string) {
+    setToolCallLoading(true);
+    setToolCallError(null);
+
+    try {
+      const result = await callWeatherTool(question);
+      setToolCallData(result);
+    } catch (error) {
+      setToolCallError(error instanceof Error ? error.message : "天气工具调用请求失败");
+    } finally {
+      setToolCallLoading(false);
+    }
+  }
+
   return (
     <div className="app-shell">
       <header className="hero">
@@ -127,8 +148,8 @@ function App() {
           <p className="eyebrow">Knowledge RAG Demo</p>
           <h1>AI 能力工作台</h1>
           <p className="hero-copy">
-            这个工作台用于承接当前学习阶段的 AI 能力验证，包括模型连通性、文本总结、结构化抽取和后续
-            RAG 问答能力。页面组织方式尽量贴近企业内部 AI 控制台，便于继续扩展 Day 5 / Day 6。
+            这个工作台用于承接当前学习阶段的 AI 能力验证，包括模型连通性、文本总结、结构化抽取、Tool Calling
+            和后续 RAG 问答能力。页面组织方式尽量贴近企业内部 AI 控制台，便于继续扩展 Day 5 / Day 6。
           </p>
         </div>
         <HealthBadge data={health} loading={healthLoading} error={healthError} />
@@ -194,6 +215,20 @@ function App() {
           <StatusNotice
             tone="info"
             message="推荐用故障反馈、需求描述、投诉记录和咨询文本来观察结构化抽取效果。"
+          />
+        </CapabilityCard>
+
+        <CapabilityCard
+          kicker="Tool Calling"
+          title="天气工具调用"
+          description="这一张卡专门演示模型先决定是否调用天气工具，再基于工具结果组织最终回答。"
+        >
+          <WeatherToolPanel onSubmit={handleToolCall} loading={toolCallLoading} />
+          <WeatherToolResultCard data={toolCallData} loading={toolCallLoading} />
+          <StatusNotice tone="error" message={toolCallError} />
+          <StatusNotice
+            tone="info"
+            message="你可以试试“北京今天天气怎么样”或“介绍一下这个项目”，对比是否真的触发了工具。"
           />
         </CapabilityCard>
 

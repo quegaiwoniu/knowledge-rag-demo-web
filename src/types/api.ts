@@ -28,6 +28,26 @@ export type ExtractResponse = {
   keywords: string[];
 };
 
+export type WeatherToolResult = {
+  // 后端天气工具返回的结构化天气数据。
+  location: string;
+  condition: string;
+  temperatureCelsius: number;
+  humidityPercent: number;
+  windDirection: string;
+};
+
+export type ToolCallResponse = {
+  // 模型最终组织给前端显示的自然语言回答。
+  answer: string;
+  // 本轮是否真的触发了工具调用。
+  toolCalled: boolean;
+  toolName: string | null;
+  // 标识本轮工具结果来自 mock 还是真实 provider。
+  toolSource: string | null;
+  toolResult: WeatherToolResult | null;
+};
+
 export type CitationPreview = {
   fileName: string;
   chunkIndex: number;
