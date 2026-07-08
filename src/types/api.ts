@@ -53,3 +53,27 @@ export type CitationPreview = {
   chunkIndex: number;
   snippet: string;
 };
+
+export type RagDocumentMetadata = {
+  // 后端根据内容哈希生成的稳定文档 ID，后续可用于 chunk 与引用追踪。
+  docId: string;
+  // Markdown 文件名，例如 order-status-definition.md。
+  fileName: string;
+  // 文档来源路径，后续展示引用来源时会用到。
+  sourcePath: string;
+  // 从 Markdown 一级标题解析出来的业务标题。
+  title: string;
+  // 文档内容 SHA-256，用于识别重复文档或判断内容是否变化。
+  contentHash: string;
+  // 本次导入时间，用于判断知识库刷新时间。
+  ingestedAt: string;
+};
+
+export type RagIngestResponse = {
+  // 本次真正导入的文档数量。
+  importedCount: number;
+  // 因 contentHash 重复而被跳过的文档数量。
+  duplicateCount: number;
+  // 导入后的文档元数据列表。
+  documents: RagDocumentMetadata[];
+};

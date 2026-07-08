@@ -113,6 +113,80 @@ code {
   gap: 20px;
 }
 
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.side-menu {
+  position: sticky;
+  top: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 254, 250, 0.92);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.side-menu__header {
+  margin-bottom: 14px;
+}
+
+.side-menu__header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.side-menu__nav {
+  display: grid;
+  gap: 10px;
+}
+
+.side-menu__item {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.side-menu__item:hover {
+  background: #fffefa;
+  border-color: var(--line);
+}
+
+.side-menu__item--active {
+  background: #fffefa;
+  border-color: rgba(15, 118, 110, 0.35);
+  box-shadow: inset 4px 0 0 var(--accent);
+}
+
+.side-menu__kicker {
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.side-menu__item span:last-child {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.workspace-panel {
+  min-width: 0;
+}
+
 .panel,
 .answer-card,
 .citation-block {
@@ -372,11 +446,60 @@ textarea:disabled {
   font-weight: 700;
 }
 
+.ingest-intro {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: #fffefa;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.ingest-intro p {
+  margin: 0;
+}
+
+.document-table-wrap {
+  margin-top: 18px;
+  overflow-x: auto;
+}
+
+.document-table {
+  width: 100%;
+  min-width: 960px;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.document-table th,
+.document-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.document-table th {
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 @media (max-width: 920px) {
   .hero,
-  .page-grid {
+  .page-grid,
+  .dashboard-layout {
     grid-template-columns: 1fr;
     display: grid;
+  }
+
+  .side-menu {
+    position: static;
+  }
+
+  .side-menu__nav {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   }
 
   .health-badge {
