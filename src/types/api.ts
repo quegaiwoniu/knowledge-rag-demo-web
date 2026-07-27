@@ -95,6 +95,14 @@ export type RagChunk = {
   content: string;
 };
 
+export type RagIndexStatusResponse = {
+  documentCount: number;
+  chunkCount: number;
+  embeddedChunkCount: number;
+  lastRebuildAt: string | null;
+  hasIndex: boolean;
+};
+
 export type RagChunksResponse = {
   // 参与切片的文档数量，空文档也会计入。
   documentCount: number;
