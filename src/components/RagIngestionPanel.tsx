@@ -20,7 +20,7 @@ export function RagIngestionPanel({ data, loading, onIngest }: RagIngestionPanel
       <div className="ingest-intro">
         <p>
           当前阶段只做文档导入：从后端 <code>docs/sample-docs</code> 读取 Markdown，
-          并返回文档级元数据。切片、向量化和检索会在后续 Day 10 / Day 11 继续接入。
+          并返回文档级元数据。导入完成后，可以切到“文档切片调试”查看 Day 10 生成的 chunks。
         </p>
       </div>
 

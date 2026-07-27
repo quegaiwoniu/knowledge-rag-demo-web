@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { callWeatherTool, extractText, pingAi, summarizeText } from "./api/aiApi";
 import { fetchHealth } from "./api/healthApi";
-import { ingestRagDocuments } from "./api/ragApi";
+import { fetchRagChunks, ingestRagDocuments } from "./api/ragApi";
 import { AnswerPreviewCard } from "./components/AnswerPreviewCard";
 import { CapabilityCard } from "./components/CapabilityCard";
 import { CitationPreviewList } from "./components/CitationPreviewList";
@@ -9,6 +9,7 @@ import { ExtractPanel } from "./components/ExtractPanel";
 import { ExtractResultCard } from "./components/ExtractResultCard";
 import { HealthBadge } from "./components/HealthBadge";
 import { PingPanel } from "./components/PingPanel";
+import { RagChunksPanel } from "./components/RagChunksPanel";
 import { RagIngestionPanel } from "./components/RagIngestionPanel";
 import { RagQuestionPanel } from "./components/RagQuestionPanel";
 import { StatusNotice } from "./components/StatusNotice";
@@ -20,12 +21,13 @@ import {
   type CitationPreview,
   type ExtractResponse,
   type HealthResponse,
+  type RagChunksResponse,
   type RagIngestResponse,
   type SummaryResponse,
   type ToolCallResponse
 } from "./types/api";
 
-type CapabilityKey = "ping" | "summary" | "extract" | "toolCalling" | "ragIngest" | "ragRoadmap";
+type CapabilityKey = "ping" | "summary" | "extract" | "toolCalling" | "ragIngest" | "ragChunks" | "ragRoadmap";
 
 /**
  * 左侧菜单配置。
@@ -44,6 +46,12 @@ const capabilityMenus: Array<{
     kicker: "RAG Ingestion",
     title: "知识库文档导入",
     description: "读取 Markdown 样例语料，检查文档元数据。"
+  },
+  {
+    key: "ragChunks",
+    kicker: "RAG Chunks",
+    title: "文档切片调试",
+    description: "查看 chunk 顺序、章节和可追溯信息。"
   },
   {
     key: "ragRoadmap",
@@ -121,6 +129,10 @@ function App() {
   const [ragIngestData, setRagIngestData] = useState<RagIngestResponse | null>(null);
   const [ragIngestLoading, setRagIngestLoading] = useState(false);
   const [ragIngestError, setRagIngestError] = useState<string | null>(null);
+
+  const [ragChunksData, setRagChunksData] = useState<RagChunksResponse | null>(null);
+  const [ragChunksLoading, setRagChunksLoading] = useState(false);
+  const [ragChunksError, setRagChunksError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -224,6 +236,26 @@ function App() {
       setRagIngestError(error instanceof Error ? error.message : "RAG 文档导入请求失败");
     } finally {
       setRagIngestLoading(false);
+    }
+  }
+
+  /**
+   * 刷新 Day 10 RAG 文档切片结果。
+   *
+   * 这个动作依赖后端内存里已经有 /rag/ingest 的导入结果；
+   * 如果还没导入，后端会返回空 chunks，前端照常展示为空状态。
+   */
+  async function handleRagChunksRefresh() {
+    setRagChunksLoading(true);
+    setRagChunksError(null);
+
+    try {
+      const result = await fetchRagChunks();
+      setRagChunksData(result);
+    } catch (error) {
+      setRagChunksError(error instanceof Error ? error.message : "RAG 文档切片请求失败");
+    } finally {
+      setRagChunksLoading(false);
     }
   }
 
@@ -343,6 +375,21 @@ function App() {
                 <StatusNotice
                   tone="info"
                   message="如果这里提示目录不存在，请先确认后端已重启，并加载了兼容父级工作区启动的路径解析代码。"
+                />
+              </>
+            ) : null}
+
+            {activeCapability === "ragChunks" ? (
+              <>
+                <RagChunksPanel
+                  data={ragChunksData}
+                  loading={ragChunksLoading}
+                  onRefresh={handleRagChunksRefresh}
+                />
+                <StatusNotice tone="error" message={ragChunksError} />
+                <StatusNotice
+                  tone="info"
+                  message="切片结果来自后端内存中的最近一次导入；重启后端后需要重新执行文档导入。"
                 />
               </>
             ) : null}

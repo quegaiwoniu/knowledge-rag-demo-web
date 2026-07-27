@@ -77,3 +77,33 @@ export type RagIngestResponse = {
   // 导入后的文档元数据列表。
   documents: RagDocumentMetadata[];
 };
+
+export type RagChunk = {
+  // 所属文档 ID，用于从 chunk 追溯回原始 Markdown 文档。
+  docId: string;
+  // 原始 Markdown 文件名。
+  fileName: string;
+  // 原始 Markdown 文件路径，便于调试来源。
+  sourcePath: string;
+  // 文档标题，来自 Markdown 一级标题。
+  title: string;
+  // chunk 所属章节标题，来自 Markdown 二级到六级标题。
+  sectionTitle: string;
+  // 当前切片结果中的全局顺序号。
+  chunkIndex: number;
+  // 当前 chunk 的正文内容。
+  content: string;
+};
+
+export type RagChunksResponse = {
+  // 参与切片的文档数量，空文档也会计入。
+  documentCount: number;
+  // 实际生成的 chunk 数量。
+  chunkCount: number;
+  // 后端当前生效的 chunk size 配置。
+  chunkSize: number;
+  // 后端当前生效的 chunk overlap 配置。
+  chunkOverlap: number;
+  // 按文档、章节和切片顺序排列的 chunks。
+  chunks: RagChunk[];
+};

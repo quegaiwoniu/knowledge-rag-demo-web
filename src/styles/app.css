@@ -486,6 +486,76 @@ textarea:disabled {
   letter-spacing: 0.04em;
 }
 
+.chunk-list {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.chunk-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: #fffefa;
+}
+
+.chunk-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.chunk-card__header h4 {
+  margin: 6px 0 0;
+  line-height: 1.4;
+}
+
+.chunk-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #eef6ff;
+  color: #245ea9;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.chunk-card__content {
+  max-height: 180px;
+  overflow: auto;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: #faf7ef;
+  color: var(--text);
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.chunk-card__meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px 12px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.chunk-card__meta span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chunk-empty {
+  margin-top: 18px;
+}
+
 @media (max-width: 920px) {
   .hero,
   .page-grid,
