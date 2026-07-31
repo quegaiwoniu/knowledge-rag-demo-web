@@ -1,4 +1,4 @@
-import { type ApiResponse, type RagChunksResponse, type RagIndexStatusResponse, type RagIngestResponse } from "../types/api";
+import { type ApiResponse, type RagChunksResponse, type RagIndexStatusResponse, type RagIngestResponse, type RagSearchResponse } from "../types/api";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
@@ -55,6 +55,18 @@ export async function rebuildRagIndex(): Promise<RagIndexStatusResponse> {
 export async function fetchRagIndexStatus(): Promise<RagIndexStatusResponse> {
   const response = await fetch(`${API_BASE_URL}/rag/index/status`);
   const payload = (await response.json()) as ApiResponse<RagIndexStatusResponse>;
+
+  if (!response.ok || !payload.success) {
+    throw new Error(payload.message || `Request failed with status ${response.status}`);
+  }
+
+  return payload.data;
+}
+
+export async function searchRag(query: string, topK: number = 5): Promise<RagSearchResponse> {
+  const params = new URLSearchParams({ query, topK: String(topK) });
+  const response = await fetch(`${API_BASE_URL}/rag/index/search?${params}`);
+  const payload = (await response.json()) as ApiResponse<RagSearchResponse>;
 
   if (!response.ok || !payload.success) {
     throw new Error(payload.message || `Request failed with status ${response.status}`);

@@ -6,6 +6,7 @@ import {
   fetchRagIndexStatus,
   ingestRagDocuments,
   rebuildRagIndex,
+  searchRag,
 } from "./api/ragApi";
 import { AnswerPreviewCard } from "./components/AnswerPreviewCard";
 import { CapabilityCard } from "./components/CapabilityCard";
@@ -17,6 +18,7 @@ import { PingPanel } from "./components/PingPanel";
 import { RagChunksPanel } from "./components/RagChunksPanel";
 import { RagIndexPanel } from "./components/RagIndexPanel";
 import { RagIngestionPanel } from "./components/RagIngestionPanel";
+import { RagSearchPanel } from "./components/RagSearchPanel";
 import { RagQuestionPanel } from "./components/RagQuestionPanel";
 import { StatusNotice } from "./components/StatusNotice";
 import { SummaryPanel } from "./components/SummaryPanel";
@@ -31,6 +33,7 @@ import {
   type RagChunksResponse,
   type RagIndexStatusResponse,
   type RagIngestResponse,
+  type RagSearchResponse,
   type SummaryResponse,
   type ToolCallResponse,
 } from "./types/api";
@@ -43,6 +46,7 @@ type CapabilityKey =
   | "ragIngest"
   | "ragChunks"
   | "ragIndex"
+  | "ragSearch"
   | "ragRoadmap";
 
 const capabilityMenus: Array<{
@@ -68,6 +72,12 @@ const capabilityMenus: Array<{
     kicker: "RAG Index",
     title: "向量索引管理",
     description: "重建索引并查看 pgvector 入库状态。",
+  },
+  {
+    key: "ragSearch",
+    kicker: "RAG Search",
+    title: "向量检索",
+    description: "输入问题，从 pgvector 召回最相关的文档片段。",
   },
   {
     key: "ragRoadmap",
@@ -131,6 +141,7 @@ function App() {
   const ragIngest = useAsyncAction<RagIngestResponse>(ingestRagDocuments);
   const ragChunks = useAsyncAction<RagChunksResponse>(fetchRagChunks);
   const ragIndex = useAsyncAction<RagIndexStatusResponse>(fetchRagIndexStatus);
+  const ragSearch = useAsyncAction<RagSearchResponse>(searchRag);
   const [ragIndexRebuilding, setRagIndexRebuilding] = useState(false);
 
   // 页面加载时自动执行健康检查
@@ -338,6 +349,22 @@ function App() {
                 <StatusNotice
                   tone="info"
                   message="重建索引会执行完整流水线：导入 → 切片 → embedding → pgvector 入库。请确保 embedding 服务 API Key 已配置。"
+                />
+              </>
+            ) : null}
+
+            {activeCapability === "ragSearch" ? (
+              <>
+                <RagSearchPanel
+                  onSearch={ragSearch.execute}
+                  loading={ragSearch.loading}
+                  error={ragSearch.error}
+                  data={ragSearch.data}
+                />
+                <StatusNotice tone="error" message={ragSearch.error} />
+                <StatusNotice
+                  tone="info"
+                  message="输入自然语言问题，后端调用 embedding 模型向量化后从 pgvector 召回最相似的文档片段。"
                 />
               </>
             ) : null}

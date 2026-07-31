@@ -115,3 +115,18 @@ export type RagChunksResponse = {
   // 按文档、章节和切片顺序排列的 chunks。
   chunks: RagChunk[];
 };
+
+export interface RagSearchResult {
+  docId: string;
+  fileName: string;
+  title: string;
+  sectionTitle: string;
+  chunkIndex: number;
+  content: string;
+  score: number;
+}
+
+export interface RagSearchResponse {
+  query: string;
+  results: RagSearchResult[];
+}
