@@ -1,7 +1,8 @@
-﻿import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { callWeatherTool, extractText, pingAi, summarizeText } from "./api/aiApi";
 import { fetchHealth } from "./api/healthApi";
 import {
+  askRag,
   fetchRagChunks,
   fetchRagIndexStatus,
   ingestRagDocuments,
@@ -27,9 +28,9 @@ import { WeatherToolResultCard } from "./components/WeatherToolResultCard";
 import { useAsyncAction } from "./hooks/useAsyncAction";
 import {
   type AiPingResponse,
-  type CitationPreview,
   type ExtractResponse,
   type HealthResponse,
+  type RagAskResponse,
   type RagChunksResponse,
   type RagIndexStatusResponse,
   type RagIngestResponse,
@@ -111,19 +112,6 @@ const capabilityMenus: Array<{
   },
 ];
 
-const previewCitations: CitationPreview[] = [
-  {
-    fileName: "faq.md",
-    chunkIndex: 2,
-    snippet: "这里后续会展示 RAG 返回的文档名、分片编号和片段摘要。",
-  },
-  {
-    fileName: "troubleshooting.md",
-    chunkIndex: 5,
-    snippet: "这个区域已经提前把 /rag/ask 的答案与引用展示结构预留好了。",
-  },
-];
-
 function App() {
   const [activeCapability, setActiveCapability] =
     useState<CapabilityKey>("ragIngest");
@@ -142,6 +130,7 @@ function App() {
   const ragChunks = useAsyncAction<RagChunksResponse>(fetchRagChunks);
   const ragIndex = useAsyncAction<RagIndexStatusResponse>(fetchRagIndexStatus);
   const ragSearch = useAsyncAction<RagSearchResponse>(searchRag);
+  const ragAsk = useAsyncAction<RagAskResponse>(askRag);
   const [ragIndexRebuilding, setRagIndexRebuilding] = useState(false);
 
   // 页面加载时自动执行健康检查
@@ -371,22 +360,37 @@ function App() {
 
             {activeCapability === "ragRoadmap" ? (
               <>
-                <RagQuestionPanel />
-                <AnswerPreviewCard
-                  title="RAG 答案预览"
-                  emptyTitle="RAG 接口还未接入"
-                  emptyDescription="等 /rag/ask 和 /rag/search 准备好后，这里可以直接展示最终答案和上下文信息。"
-                  answer={null}
-                  meta={[
-                    { label: "Status", value: "placeholder" },
-                    { label: "Next", value: "wire to /rag/ask" },
-                  ]}
-                  loading={false}
+                <RagQuestionPanel
+                  onSubmit={ragAsk.execute}
+                  loading={ragAsk.loading}
                 />
-                <CitationPreviewList items={previewCitations} />
+                <AnswerPreviewCard
+                  title="RAG 问答结果"
+                  emptyTitle="还没有问答结果"
+                  emptyDescription="在上方输入问题，系统会从知识库检索相关文档片段并生成回答。"
+                  answer={ragAsk.data?.answer ?? null}
+                  meta={
+                    ragAsk.data
+                      ? [
+                          {
+                            label: "Context",
+                            value: ragAsk.data.enoughContext
+                              ? "sufficient"
+                              : "insufficient",
+                          },
+                          {
+                            label: "Citations",
+                            value: String(ragAsk.data.citations.length),
+                          },
+                        ]
+                      : []
+                  }
+                  loading={ragAsk.loading}
+                />
+                <CitationPreviewList items={ragAsk.data?.citations ?? []} />
                 <StatusNotice
                   tone="info"
-                  message="当前引用列表是静态预览，目标是先把 RAG 卡片的布局稳定下来。"
+                  message="输入自然语言问题，后端会从知识库检索文档片段，交给模型生成回答并附带引用。"
                 />
               </>
             ) : null}

@@ -1,7 +1,7 @@
-import { type CitationPreview } from "../types/api";
+import { type RagSearchResult } from "../types/api";
 
 type CitationPreviewListProps = {
-  items: CitationPreview[];
+  items: RagSearchResult[];
 };
 
 export function CitationPreviewList({ items }: CitationPreviewListProps) {
@@ -17,7 +17,7 @@ export function CitationPreviewList({ items }: CitationPreviewListProps) {
               <strong>{item.fileName}</strong>
               <span>chunk #{item.chunkIndex}</span>
             </div>
-            <p>{item.snippet}</p>
+            <p>{item.content}</p>
           </li>
         ))}
       </ul>

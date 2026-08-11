@@ -130,3 +130,10 @@ export interface RagSearchResponse {
   query: string;
   results: RagSearchResult[];
 }
+
+export interface RagAskResponse {
+  answer: string;
+  enoughContext: boolean;
+  citations: RagSearchResult[];
+  retrievedChunks: RagSearchResult[];
+}
