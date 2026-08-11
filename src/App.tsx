@@ -48,7 +48,7 @@ type CapabilityKey =
   | "ragChunks"
   | "ragIndex"
   | "ragSearch"
-  | "ragRoadmap";
+  | "ragAsk";
 
 const capabilityMenus: Array<{
   key: CapabilityKey;
@@ -81,10 +81,10 @@ const capabilityMenus: Array<{
     description: "输入问题，从 pgvector 召回最相关的文档片段。",
   },
   {
-    key: "ragRoadmap",
-    kicker: "RAG Roadmap",
-    title: "RAG 能力预留",
-    description: "后续承接检索、引用和问答链路。",
+    key: "ragAsk",
+    kicker: "Day 13 · Grounded QA",
+    title: "证据问答与拒答",
+    description: "基于召回证据生成答案，展示引用并在资料不足时拒答。",
   },
   {
     key: "ping",
@@ -358,14 +358,14 @@ function App() {
               </>
             ) : null}
 
-            {activeCapability === "ragRoadmap" ? (
+            {activeCapability === "ragAsk" ? (
               <>
                 <RagQuestionPanel
                   onSubmit={ragAsk.execute}
                   loading={ragAsk.loading}
                 />
                 <AnswerPreviewCard
-                  title="RAG 问答结果"
+                  title="基于知识库的回答"
                   emptyTitle="还没有问答结果"
                   emptyDescription="在上方输入问题，系统会从知识库检索相关文档片段并生成回答。"
                   answer={ragAsk.data?.answer ?? null}
@@ -373,13 +373,13 @@ function App() {
                     ragAsk.data
                       ? [
                           {
-                            label: "Context",
+                            label: "上下文",
                             value: ragAsk.data.enoughContext
-                              ? "sufficient"
-                              : "insufficient",
+                              ? "证据充足"
+                              : "证据不足，已拒答",
                           },
                           {
-                            label: "Citations",
+                            label: "引用数量",
                             value: String(ragAsk.data.citations.length),
                           },
                         ]
@@ -387,10 +387,24 @@ function App() {
                   }
                   loading={ragAsk.loading}
                 />
-                <CitationPreviewList items={ragAsk.data?.citations ?? []} />
+                <StatusNotice tone="error" message={ragAsk.error} />
+                {ragAsk.data ? (
+                  <>
+                    <CitationPreviewList
+                      title="答案引用"
+                      items={ragAsk.data.citations}
+                      emptyMessage="本次回答未生成引用；证据不足时系统应直接拒答。"
+                    />
+                    <CitationPreviewList
+                      title={`召回片段调试（${ragAsk.data.retrievedChunks.length}）`}
+                      items={ragAsk.data.retrievedChunks}
+                      emptyMessage="本次检索没有召回可用片段。"
+                    />
+                  </>
+                ) : null}
                 <StatusNotice
                   tone="info"
-                  message="输入自然语言问题，后端会从知识库检索文档片段，交给模型生成回答并附带引用。"
+                  message="引用只能来自本次召回片段；当检索证据不足时，接口返回 enoughContext=false 并明确拒答。"
                 />
               </>
             ) : null}
@@ -404,7 +418,7 @@ function App() {
               <li>
                 <span>后端服务</span>
                 <span className={health.data ? "status-ok" : "status-error"}>
-                  ${health.data ? "已连接" : "未连接"}
+                  {health.data ? "已连接" : "未连接"}
                 </span>
               </li>
               <li>
@@ -420,7 +434,7 @@ function App() {
 
           <div className="sidebar-card">
             <h3>当前功能</h3>
-            <p>${activeMenu.title} — ${activeMenu.description}</p>
+            <p>{activeMenu.title} - {activeMenu.description}</p>
           </div>
 
           <div className="sidebar-card">

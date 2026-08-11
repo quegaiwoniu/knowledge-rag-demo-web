@@ -675,7 +675,7 @@ textarea:disabled {
 .status-warn { color: var(--warn); }
 .status-error { color: var(--error); }
 
-@media (max-width: 1280px) {
+@media (min-width: 921px) and (max-width: 1280px) {
   .dashboard-layout {
     grid-template-columns: 240px minmax(0, 1fr);
   }
@@ -684,4 +684,13 @@ textarea:disabled {
     grid-column: 1 / -1;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   }
+}
+
+.empty-evidence {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  line-height: 1.6;
 }
