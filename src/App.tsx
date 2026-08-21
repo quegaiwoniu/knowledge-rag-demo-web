@@ -26,6 +26,7 @@ import { SummaryPanel } from "./components/SummaryPanel";
 import { WeatherToolPanel } from "./components/WeatherToolPanel";
 import { WeatherToolResultCard } from "./components/WeatherToolResultCard";
 import { useAsyncAction } from "./hooks/useAsyncAction";
+import { useTraceId } from "./hooks/useTraceId";
 import {
   type AiPingResponse,
   type ExtractResponse,
@@ -115,6 +116,18 @@ const capabilityMenus: Array<{
 function App() {
   const [activeCapability, setActiveCapability] =
     useState<CapabilityKey>("ragIngest");
+
+  // 最近一次请求的 traceId（来自响应头 X-Trace-Id）
+  const traceId = useTraceId();
+
+  const copyTraceId = useCallback(async () => {
+    if (!traceId) return;
+    try {
+      await navigator.clipboard.writeText(traceId);
+    } catch {
+      // 剪贴板不可用时静默失败，不影响主流程
+    }
+  }, [traceId]);
 
   // 健康检查
   const health = useAsyncAction<HealthResponse>(fetchHealth);
@@ -430,6 +443,22 @@ function App() {
                 <span className="status-ok">pgvector</span>
               </li>
             </ul>
+          </div>
+
+          <div className="sidebar-card">
+            <h3>最近请求 Trace ID</h3>
+            {traceId ? (
+              <>
+                <code className="trace-id" title="复制到剪贴板" onClick={copyTraceId}>
+                  {traceId}
+                </code>
+                <p className="trace-id-hint">
+                  报问题时把这段 ID 发给后端，即可定位本次请求的完整日志链路。
+                </p>
+              </>
+            ) : (
+              <p className="trace-id-hint">还没有发起过请求。</p>
+            )}
           </div>
 
           <div className="sidebar-card">

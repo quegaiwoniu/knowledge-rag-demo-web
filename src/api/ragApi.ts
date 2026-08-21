@@ -1,4 +1,5 @@
 import { type ApiResponse, type RagAskResponse, type RagChunksResponse, type RagIndexStatusResponse, type RagIngestResponse, type RagSearchResponse } from "../types/api";
+import { recordTraceId } from "./trace";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
@@ -12,6 +13,8 @@ export async function ingestRagDocuments(): Promise<RagIngestResponse> {
   const response = await fetch(`${API_BASE_URL}/rag/ingest`, {
     method: "POST"
   });
+
+  recordTraceId(response);
 
   const payload = (await response.json()) as ApiResponse<RagIngestResponse>;
 
@@ -30,6 +33,9 @@ export async function ingestRagDocuments(): Promise<RagIngestResponse> {
  */
 export async function fetchRagChunks(): Promise<RagChunksResponse> {
   const response = await fetch(`${API_BASE_URL}/rag/chunks`);
+
+  recordTraceId(response);
+
   const payload = (await response.json()) as ApiResponse<RagChunksResponse>;
 
   if (!response.ok || !payload.success) {
@@ -43,6 +49,9 @@ export async function rebuildRagIndex(): Promise<RagIndexStatusResponse> {
   const response = await fetch(`${API_BASE_URL}/rag/index/rebuild`, {
     method: "POST"
   });
+
+  recordTraceId(response);
+
   const payload = (await response.json()) as ApiResponse<RagIndexStatusResponse>;
 
   if (!response.ok || !payload.success) {
@@ -54,6 +63,9 @@ export async function rebuildRagIndex(): Promise<RagIndexStatusResponse> {
 
 export async function fetchRagIndexStatus(): Promise<RagIndexStatusResponse> {
   const response = await fetch(`${API_BASE_URL}/rag/index/status`);
+
+  recordTraceId(response);
+
   const payload = (await response.json()) as ApiResponse<RagIndexStatusResponse>;
 
   if (!response.ok || !payload.success) {
@@ -66,6 +78,9 @@ export async function fetchRagIndexStatus(): Promise<RagIndexStatusResponse> {
 export async function searchRag(query: string, topK: number = 5): Promise<RagSearchResponse> {
   const params = new URLSearchParams({ query, topK: String(topK) });
   const response = await fetch(`${API_BASE_URL}/rag/index/search?${params}`);
+
+  recordTraceId(response);
+
   const payload = (await response.json()) as ApiResponse<RagSearchResponse>;
 
   if (!response.ok || !payload.success) {
@@ -83,6 +98,8 @@ export async function askRag(query: string, topK: number = 5): Promise<RagAskRes
     },
     body: JSON.stringify({ query, topK })
   });
+
+  recordTraceId(response);
 
   const payload = (await response.json()) as ApiResponse<RagAskResponse>;
 

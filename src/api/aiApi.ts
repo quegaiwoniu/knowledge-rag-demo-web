@@ -1,4 +1,5 @@
 import { getJson } from "./client";
+import { recordTraceId } from "./trace";
 import {
   type AiPingResponse,
   type ExtractResponse,
@@ -22,6 +23,8 @@ export async function summarizeText(text: string): Promise<SummaryResponse> {
     body: JSON.stringify({ text })
   });
 
+  recordTraceId(response);
+
   const payload = await response.json();
 
   if (!response.ok || !payload.success) {
@@ -40,6 +43,8 @@ export async function extractText(text: string): Promise<ExtractResponse> {
     body: JSON.stringify({ text })
   });
 
+  recordTraceId(response);
+
   const payload = await response.json();
 
   if (!response.ok || !payload.success) {
@@ -57,6 +62,8 @@ export async function callWeatherTool(question: string): Promise<ToolCallRespons
     },
     body: JSON.stringify({ question })
   });
+
+  recordTraceId(response);
 
   const payload = await response.json();
 

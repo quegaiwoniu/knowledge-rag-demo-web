@@ -1,4 +1,4 @@
-﻿* {
+* {
   box-sizing: border-box;
 }
 
@@ -674,6 +674,29 @@ textarea:disabled {
 .status-ok { color: var(--success); }
 .status-warn { color: var(--warn); }
 .status-error { color: var(--error); }
+
+.trace-id {
+  display: inline-block;
+  margin: 0 0 10px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: #fffefa;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  user-select: all;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.trace-id:hover {
+  border-color: var(--accent);
+  background: rgba(15, 118, 110, 0.06);
+}
+
+.trace-id-hint {
+  font-size: 0.82rem !important;
+}
 
 @media (min-width: 921px) and (max-width: 1280px) {
   .dashboard-layout {
