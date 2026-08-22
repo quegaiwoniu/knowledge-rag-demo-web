@@ -134,6 +134,8 @@ export interface RagSearchResponse {
 export interface RagAskResponse {
   answer: string;
   enoughContext: boolean;
+  refusalReason: string | null;
   citations: RagSearchResult[];
   retrievedChunks: RagSearchResult[];
+  debugPrompt: string | null;
 }

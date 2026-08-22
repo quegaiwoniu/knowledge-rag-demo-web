@@ -51,6 +51,12 @@ type CapabilityKey =
   | "ragSearch"
   | "ragAsk";
 
+const refusalReasonLabels: Record<string, string> = {
+  NO_RETRIEVED_CHUNKS: "检索结果为空",
+  LOW_SIMILARITY_SCORE: "召回片段相似度低于阈值",
+  CONTENT_MISMATCH: "召回片段与问题不相关",
+};
+
 const capabilityMenus: Array<{
   key: CapabilityKey;
   kicker: string;
@@ -395,6 +401,16 @@ function App() {
                             label: "引用数量",
                             value: String(ragAsk.data.citations.length),
                           },
+                          ...(ragAsk.data.refusalReason
+                            ? [
+                                {
+                                  label: "拒答原因",
+                                  value:
+                                    refusalReasonLabels[ragAsk.data.refusalReason] ??
+                                    ragAsk.data.refusalReason,
+                                },
+                              ]
+                            : []),
                         ]
                       : []
                   }
@@ -413,6 +429,14 @@ function App() {
                       items={ragAsk.data.retrievedChunks}
                       emptyMessage="本次检索没有召回可用片段。"
                     />
+                    {ragAsk.data.debugPrompt ? (
+                      <div className="answer-card">
+                        <div className="answer-card__header">
+                          <h3>Prompt 调试</h3>
+                        </div>
+                        <pre className="debug-prompt">{ragAsk.data.debugPrompt}</pre>
+                      </div>
+                    ) : null}
                   </>
                 ) : null}
                 <StatusNotice

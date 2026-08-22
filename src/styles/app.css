@@ -717,3 +717,16 @@ textarea:disabled {
   color: var(--muted);
   line-height: 1.6;
 }
+
+.debug-prompt {
+  max-height: 360px;
+  overflow: auto;
+  padding: 16px;
+  margin: 0;
+  border-radius: var(--radius-md);
+  background: #1f2937;
+  color: #f9fafb;
+  font: 0.84rem/1.6 "Cascadia Code", "Consolas", monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
